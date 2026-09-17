@@ -12,6 +12,7 @@ import {
   AlertCircle,
 } from 'lucide-react'
 import { EmptyState } from '@/shared/components/ui/EmptyState'
+import { downloadPdfBlob } from '@/shared/lib/pdfDownload'
 
 // ── Status helpers ──────────────────────────────────────────────
 const STATUS_CONFIG: Record<Quote['status'], { label: string; color: string; bg: string }> = {
@@ -519,20 +520,19 @@ function QuoteViewModal({
   }
 
   const handleExportPdf = async () => {
-    const { pdf: pdfFn } = await import('@react-pdf/renderer')
-    const blob = await pdfFn(
-      <QuoteDoc
-        quote={quote}
-        customer={customer}
-        currencySymbol={symbol}
-      />,
-    ).toBlob()
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `orcamento_${String(quote.number).padStart(3, '0')}.pdf`
-    a.click()
-    URL.revokeObjectURL(url)
+    try {
+      const { pdf: pdfFn } = await import('@react-pdf/renderer')
+      const blob = await pdfFn(
+        <QuoteDoc
+          quote={quote}
+          customer={customer}
+          currencySymbol={symbol}
+        />,
+      ).toBlob()
+      downloadPdfBlob(blob, `orcamento_${String(quote.number).padStart(3, '0')}.pdf`)
+    } catch (error) {
+      console.error('Falha ao gerar o orçamento em PDF.', error)
+    }
   }
 
   return (

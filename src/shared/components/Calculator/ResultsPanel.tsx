@@ -778,9 +778,13 @@ export function ResultsPanel({ variant }: ResultsPanelProps) {
         <button
           data-shortcut="export"
           onClick={async () => {
-            const { exportPdf } = await import("@/shared/lib/pdfExport");
-            const locale = i18n.resolvedLanguage || i18n.language || "pt-BR";
-            exportPdf(results, locale, currency);
+            try {
+              const { exportPdf } = await import("@/shared/lib/pdfExport");
+              const locale = i18n.resolvedLanguage || i18n.language || "pt-BR";
+              await exportPdf(results, locale, currency);
+            } catch (error) {
+              console.error("Falha ao carregar o gerador de PDF.", error);
+            }
           }}
           className="min-h-[44px] py-2.5 rounded-xl text-[11px] font-bold bg-[var(--color-bg-surface)] text-white hover:bg-[var(--color-bg-hover)] transition-all focus-visible:ring-2 focus-visible:ring-[var(--color-bg-surface)] focus-visible:outline-none flex items-center justify-center gap-1 truncate"
         >
